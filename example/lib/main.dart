@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:device_integrity/device_integrity.dart';
+import 'package:device_integrity_plugin/device_integrity_plugin.dart';
 
 void main() {
   runApp(const DeviceIntegrityExampleApp());
@@ -155,8 +155,8 @@ class _IntegrityDashboardState extends State<IntegrityDashboard> {
                     _metaRow('Platform', _report!.platform),
                     _metaRow('OS Version', _report!.osVersion),
                     _metaRow('Plugin Version', _report!.packageVersion),
-                    _metaRow('Check Time',
-                        _report!.checkTime.toLocal().toString()),
+                    _metaRow(
+                        'Check Time', _report!.checkTime.toLocal().toString()),
                     _metaRow('Findings', '${_report!.findings.length}'),
                   ],
                 ),

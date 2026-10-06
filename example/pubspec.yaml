@@ -1,5 +1,6 @@
 name: device_integrity_example
 description: Example app demonstrating signal-by-signal handling.
+version: 0.0.1+1
 
 publish_to: 'none'
 
@@ -9,7 +10,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  device_integrity:
+  device_integrity_plugin:
     path: ../
 
 dev_dependencies:
