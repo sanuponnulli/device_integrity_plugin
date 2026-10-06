@@ -1,12 +1,14 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:device_integrity/device_integrity.dart';
+import 'package:device_integrity_plugin/device_integrity_plugin.dart';
 
 void main() {
   group('FindingStatus', () {
     test('fromString parses known values', () {
       expect(FindingStatus.fromString('detected'), FindingStatus.detected);
-      expect(FindingStatus.fromString('notDetected'), FindingStatus.notDetected);
-      expect(FindingStatus.fromString('unavailable'), FindingStatus.unavailable);
+      expect(
+          FindingStatus.fromString('notDetected'), FindingStatus.notDetected);
+      expect(
+          FindingStatus.fromString('unavailable'), FindingStatus.unavailable);
       expect(FindingStatus.fromString('error'), FindingStatus.error);
     });
 
@@ -388,7 +390,8 @@ void main() {
   group('Signal distinctness', () {
     test('emulator, debugger, proxy, root are different signal IDs', () {
       // These must never be conflated
-      expect(SignalId.emulatorSimulator, isNot(SignalId.rootJailbreakArtifacts));
+      expect(
+          SignalId.emulatorSimulator, isNot(SignalId.rootJailbreakArtifacts));
       expect(SignalId.debuggerAttached, isNot(SignalId.rootJailbreakArtifacts));
       expect(SignalId.proxyConfigured, isNot(SignalId.rootJailbreakArtifacts));
       expect(SignalId.vpnActive, isNot(SignalId.rootJailbreakArtifacts));
