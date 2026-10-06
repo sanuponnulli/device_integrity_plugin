@@ -1,4 +1,4 @@
-# device_integrity
+# device_integrity_plugin
 
 A reusable Flutter plugin that reports **separate, explainable integrity signals** and supports **platform-backed attestation** for server-side verification.
 
@@ -16,7 +16,7 @@ A reusable Flutter plugin that reports **separate, explainable integrity signals
 ## Quick start
 
 ```dart
-import 'package:device_integrity/device_integrity.dart';
+import 'package:device_integrity_plugin/device_integrity_plugin.dart';
 
 final plugin = DeviceIntegrityPlugin.instance;
 
@@ -33,9 +33,46 @@ for (final finding in report.findings) {
 final proof = await plugin.createProof(
   challenge: serverNonce,       // from your backend
   requestHash: sha256OfBody,    // optional
+  // keyId: appAttestKeyId,     // required on iOS after key attestation
 );
 // Submit proof.tokenBase64 to your backend for verification
 ```
+
+On Android, configure the Google Cloud project number used by Play Integrity
+in the host app's `android/app/src/main/AndroidManifest.xml` inside the
+`<application>` element. The project number is public configuration, not a
+credential:
+
+```xml
+<meta-data
+    android:name="com.sanuponnulli.device_integrity_plugin.CLOUD_PROJECT_NUMBER"
+    android:value="123456789012" />
+```
+
+Android binds both the challenge and optional request hash into the Play
+Integrity Standard API `requestHash`. The backend must recompute the documented
+binding hash from its stored challenge and expected request hash, then compare
+it with the decoded token's `requestHash` claim. The host app must not treat the
+proof's echoed challenge or request hash as trusted by themselves.
+
+The bound value is base64url without padding over SHA-256 of this UTF-8 string:
+`device-integrity-v1\n<challenge-length>:<challenge>\n<request-hash-length>:<request-hash>`.
+Lengths are Dart/Kotlin string lengths; when the optional request hash is
+omitted, its length is `-1` and its value is empty. For example, the backend
+can reproduce it with:
+
+```dart
+final bindingInput =
+    'device-integrity-v1\n${challenge.length}:$challenge\n'
+    '${requestHash?.length ?? -1}:${requestHash ?? ''}';
+final expectedRequestHash = base64Url
+    .encode(sha256.convert(utf8.encode(bindingInput)).bytes)
+    .replaceAll('=', '');
+```
+
+This snippet needs `dart:convert` and `package:crypto/crypto.dart` in the
+backend. Compare `expectedRequestHash` to the decoded Play Integrity token's
+`requestDetails.requestHash` value.
 
 ## API
 
@@ -55,7 +92,7 @@ Runs all available local checks. Returns one `IntegrityFinding` per check, each 
 
 Reports which checks and attestation providers are available, with minimum OS versions and unavailability reasons.
 
-### `createProof({challenge, requestHash}) → Future<AttestationProof>`
+### `createProof({challenge, requestHash, keyId}) → Future<AttestationProof>`
 
 Requests a platform attestation token:
 - **Android**: Play Integrity token (backend decodes via Google API)
@@ -76,6 +113,7 @@ final attestation = await plugin.attestAppAttestKey(
 final proof = await plugin.createProof(
   challenge: newChallenge,
   requestHash: sha256OfRequest,
+  keyId: keyId,
 );
 ```
 
@@ -124,11 +162,11 @@ if (captured) {
 
 ### Play Integrity (Android)
 
-1. Backend creates a high-entropy nonce with short expiry
-2. App calls `createProof(challenge: nonce, requestHash: sha256OfBody)`
+1. Backend creates a high-entropy, single-use challenge with short expiry
+2. App calls `createProof(challenge: challenge, requestHash: sha256OfBody)`
 3. App sends `proof.tokenBase64` to backend
 4. Backend calls Google Play Integrity API to decode the token
-5. Backend verifies: nonce matches, request hash matches, device/app verdicts meet policy
+5. Backend recomputes the bound request hash from the challenge and request hash, verifies it against the token, and checks device/app verdicts against policy
 
 **References:**
 - [Play Integrity overview](https://developer.android.com/google/play/integrity/overview)
@@ -160,12 +198,17 @@ if (captured) {
 - **Device-specific**: `FLAG_SECURE` behavior varies by OEM. Screen capture detection on iOS cannot prevent physical photography.
 - **Detection rates**: Do not advertise measured detection rates until tested on a documented device and OS matrix.
 
+## Release validation
+
+See [doc/RELEASE_CHECKLIST.md](doc/RELEASE_CHECKLIST.md) for the automated,
+physical-device, attestation, and pub.dev checks used before a release.
+
 ## Project structure
 
 ```
-device_integrity/
+device_integrity_plugin/
 ├── lib/
-│   ├── device_integrity.dart          # Barrel export
+│   ├── device_integrity_plugin.dart   # Barrel export
 │   └── src/
 │       ├── device_integrity_plugin.dart   # Main API
 │       ├── models/                    # Dart models
