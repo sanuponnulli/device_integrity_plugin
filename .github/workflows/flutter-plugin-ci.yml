@@ -1,0 +1,154 @@
+name: Flutter Plugin CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  dart:
+    name: Dart checks (Flutter ${{ matrix.flutter_version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        flutter_version: ["3.10.0", "stable"]
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ matrix.flutter_version }}
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Analyze plugin
+        run: flutter analyze --fatal-infos
+
+      - name: Run plugin tests
+        run: flutter test
+
+  build_android:
+    name: Android example and 16 KB check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: stable
+          channel: stable
+          cache: true
+
+      - name: Install example dependencies
+        working-directory: example
+        run: flutter pub get
+
+      - name: Run example widget tests
+        working-directory: example
+        run: flutter test
+
+      - name: Build example APK
+        working-directory: example
+        run: flutter build apk --debug
+
+      - name: Check native libraries for 16 KB page-size support
+        shell: bash
+        run: |
+          set -euo pipefail
+          apk="example/build/app/outputs/flutter-apk/app-debug.apk"
+          mkdir -p output_apk
+          unzip -o "$apk" -d output_apk >/dev/null
+
+          found=false
+          failed=false
+          while IFS= read -r -d '' so; do
+            found=true
+            while IFS= read -r alignment; do
+              [[ -z "$alignment" ]] && continue
+              value=$((alignment))
+              if (( value < 16384 )); then
+                echo "[FAIL] $so has a LOAD segment aligned to $alignment (requires at least 0x4000)"
+                failed=true
+              fi
+            done < <(readelf -Wl "$so" | awk '$1 == "LOAD" { print $NF }')
+          done < <(find output_apk -type f -name '*.so' -print0)
+
+          if [[ "$found" == false ]]; then
+            echo "No native shared libraries found in the APK; 16 KB ELF alignment check skipped."
+          fi
+          if [[ "$failed" == true ]]; then
+            exit 1
+          fi
+          if [[ "$found" == true ]]; then
+            echo "All native shared libraries have LOAD alignment of at least 16 KB."
+          fi
+
+          zipalign="$(find "$ANDROID_HOME/build-tools" -type f -name zipalign | sort -V | tail -n 1)"
+          if [[ -z "$zipalign" ]]; then
+            echo "Could not find Android zipalign in $ANDROID_HOME/build-tools" >&2
+            exit 1
+          fi
+          "$zipalign" -c -P 16 4 "$apk"
+
+  build_ios:
+    name: iOS example build
+    runs-on: macos-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: stable
+          channel: stable
+          cache: true
+
+      - name: Install example dependencies
+        working-directory: example
+        run: flutter pub get
+
+      - name: Build example for iOS
+        working-directory: example
+        run: flutter build ios --no-codesign
+
+  package_validation:
+    name: Package and documentation validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: stable
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Generate API documentation
+        run: dart doc --output /tmp/device-integrity-docs
+
+      - name: Validate pub package archive
+        run: flutter pub publish --dry-run
