@@ -1,10 +1,10 @@
-package com.example.device_integrity.checks
+package com.sanuponnulli.device_integrity_plugin.checks
 
 import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.os.Debug
-import com.example.device_integrity.models.Finding
-import com.example.device_integrity.models.IntegrityCheck
+import com.sanuponnulli.device_integrity_plugin.models.Finding
+import com.sanuponnulli.device_integrity_plugin.models.IntegrityCheck
 
 /**
  * Detects debugger attachment and debuggable build configuration.

@@ -1,11 +1,11 @@
-name: device_integrity
+name: device_integrity_plugin
 description: >
-  A reusable device-integrity plugin that reports separate, explainable
-  integrity signals and supports platform-backed attestation for server
-  verification. Signals are distinct — root/jailbreak, emulator, debugger,
-  hooking, proxy, and app-tampering are never collapsed into one verdict.
+  Flutter plugin for separate Android and iOS device integrity signals, with
+  Play Integrity and App Attest support.
 version: 0.1.0
-homepage: https://github.com/example/device_integrity
+homepage: https://github.com/sanuponnulli/device_integrity_plugin
+repository: https://github.com/sanuponnulli/device_integrity_plugin
+issue_tracker: https://github.com/sanuponnulli/device_integrity_plugin/issues
 
 environment:
   sdk: ">=3.0.0 <4.0.0"
@@ -25,7 +25,7 @@ flutter:
   plugin:
     platforms:
       android:
-        package: com.example.device_integrity
+        package: com.sanuponnulli.device_integrity_plugin
         pluginClass: DeviceIntegrityPlugin
       ios:
         pluginClass: DeviceIntegrityPlugin

@@ -25,7 +25,7 @@ class NetworkContextCheckiOS: IntegrityCheck {
         }
 
         let httpProxy = proxySettings[kCFNetworkProxiesHTTPProxy as String] as? String
-        let httpsProxy = proxySettings[kCFNetworkProxiesHTTPSProxy as String] as? String
+        let httpsProxy = proxySettings["HTTPSProxy"] as? String
         let httpEnabled = proxySettings[kCFNetworkProxiesHTTPEnable as String] as? Int
         let httpsEnabled = proxySettings["HTTPSEnable"] as? Int
 

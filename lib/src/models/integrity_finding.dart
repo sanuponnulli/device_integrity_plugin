@@ -55,7 +55,6 @@ class IntegrityFinding {
       };
 
   @override
-  String toString() =>
-      'IntegrityFinding(signalId: $signalId, status: $status, '
+  String toString() => 'IntegrityFinding(signalId: $signalId, status: $status, '
       'source: $source, reasonCode: $reasonCode)';
 }

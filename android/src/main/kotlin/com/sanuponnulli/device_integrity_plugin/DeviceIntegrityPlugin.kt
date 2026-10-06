@@ -1,12 +1,13 @@
-package com.example.device_integrity
+package com.sanuponnulli.device_integrity_plugin
 
 import android.app.Activity
 import android.content.Context
 import android.os.Build
-import com.example.device_integrity.attestation.PlayIntegrityProvider
-import com.example.device_integrity.checks.*
-import com.example.device_integrity.models.Finding
-import com.example.device_integrity.screen.SensitiveScreenGuard
+import com.sanuponnulli.device_integrity_plugin.attestation.PlayIntegrityProvider
+import com.sanuponnulli.device_integrity_plugin.checks.*
+import com.sanuponnulli.device_integrity_plugin.models.Finding
+import com.sanuponnulli.device_integrity_plugin.models.IntegrityCheck
+import com.sanuponnulli.device_integrity_plugin.screen.SensitiveScreenGuard
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
@@ -34,7 +35,7 @@ class DeviceIntegrityPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     private lateinit var playIntegrityProvider: PlayIntegrityProvider
 
     companion object {
-        const val CHANNEL_NAME = "com.example.device_integrity/methods"
+        const val CHANNEL_NAME = "com.sanuponnulli.device_integrity_plugin/methods"
         const val PACKAGE_VERSION = "0.1.0"
     }
 
@@ -203,7 +204,7 @@ class DeviceIntegrityPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             mapOf(
                 "id" to "play_integrity",
                 "available" to playAvailable,
-                "unavailableReason" to if (!playAvailable) "play_services_missing_or_outdated" else null,
+                "unavailableReason" to playIntegrityProvider.unavailableReason,
             )
         )
 

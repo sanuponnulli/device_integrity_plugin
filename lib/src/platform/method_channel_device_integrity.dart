@@ -6,7 +6,7 @@ import 'device_integrity_platform.dart';
 class MethodChannelDeviceIntegrity extends DeviceIntegrityPlatform {
   /// The channel must match the name registered on each platform side.
   final MethodChannel _channel =
-      const MethodChannel('com.example.device_integrity/methods');
+      const MethodChannel('com.sanuponnulli.device_integrity_plugin/methods');
 
   @override
   Future<Map<String, dynamic>> checkLocalSignals() async {
@@ -29,12 +29,14 @@ class MethodChannelDeviceIntegrity extends DeviceIntegrityPlatform {
   Future<Map<String, dynamic>> createProof({
     required String challenge,
     String? requestHash,
+    String? keyId,
   }) async {
     final result = await _channel.invokeMapMethod<String, dynamic>(
       'createProof',
       <String, dynamic>{
         'challenge': challenge,
         if (requestHash != null) 'requestHash': requestHash,
+        if (keyId != null) 'keyId': keyId,
       },
     );
     return result ?? <String, dynamic>{};
@@ -51,15 +53,13 @@ class MethodChannelDeviceIntegrity extends DeviceIntegrityPlatform {
 
   @override
   Future<bool> isScreenBeingCaptured() async {
-    final result =
-        await _channel.invokeMethod<bool>('isScreenBeingCaptured');
+    final result = await _channel.invokeMethod<bool>('isScreenBeingCaptured');
     return result ?? false;
   }
 
   @override
   Future<String> generateAppAttestKey() async {
-    final result =
-        await _channel.invokeMethod<String>('generateAppAttestKey');
+    final result = await _channel.invokeMethod<String>('generateAppAttestKey');
     return result ?? '';
   }
 

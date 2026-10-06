@@ -20,7 +20,7 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
 android {
-    namespace 'com.example.device_integrity'
+    namespace 'com.sanuponnulli.device_integrity_plugin'
     compileSdk 34
 
     defaultConfig {

@@ -40,8 +40,7 @@ class IntegrityReport {
           : DateTime.now().toUtc(),
       findings: rawFindings
           .whereType<Map>()
-          .map((e) =>
-              IntegrityFinding.fromMap(Map<String, dynamic>.from(e)))
+          .map((e) => IntegrityFinding.fromMap(Map<String, dynamic>.from(e)))
           .toList(growable: false),
     );
   }
@@ -59,7 +58,6 @@ class IntegrityReport {
       findings.where((f) => f.signalId == signalId).toList();
 
   @override
-  String toString() =>
-      'IntegrityReport(platform: $platform, os: $osVersion, '
+  String toString() => 'IntegrityReport(platform: $platform, os: $osVersion, '
       'findings: ${findings.length})';
 }

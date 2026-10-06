@@ -5,7 +5,7 @@
 ///
 /// ## Quick start
 /// ```dart
-/// import 'package:device_integrity/device_integrity.dart';
+/// import 'package:device_integrity_plugin/device_integrity_plugin.dart';
 ///
 /// final plugin = DeviceIntegrityPlugin.instance;
 ///
@@ -25,7 +25,7 @@
 /// );
 /// // Submit proof.tokenBase64 to your backend
 /// ```
-library device_integrity;
+library device_integrity_plugin;
 
 export 'src/device_integrity_plugin.dart';
 export 'src/models/attestation_proof.dart';

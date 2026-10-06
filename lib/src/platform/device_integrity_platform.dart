@@ -2,7 +2,7 @@ import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 import 'method_channel_device_integrity.dart';
 
-/// Platform-agnostic interface for the device_integrity plugin.
+/// Platform-agnostic interface for the device_integrity_plugin package.
 ///
 /// Implementations must provide local-signal checking, capability
 /// reporting, and attestation proof creation.
@@ -32,6 +32,7 @@ abstract class DeviceIntegrityPlatform extends PlatformInterface {
   Future<Map<String, dynamic>> createProof({
     required String challenge,
     String? requestHash,
+    String? keyId,
   });
 
   /// Enable or disable secure-screen protection on Android.

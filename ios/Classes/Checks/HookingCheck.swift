@@ -1,5 +1,6 @@
 import Foundation
 import MachO
+import Darwin
 
 /// Detects common hooking and instrumentation frameworks on iOS.
 ///
@@ -100,12 +101,23 @@ class HookingCheckiOS: IntegrityCheck {
 
         // Check if connection is in progress
         if errno == EINPROGRESS {
-            var fdSet = fd_set()
-            __darwin_fd_zero(&fdSet)
-            __darwin_fd_set(sock, &fdSet)
-            var timeout = timeval(tv_sec: 0, tv_usec: 200_000) // 200ms
-            let selectResult = select(sock + 1, nil, &fdSet, nil, &timeout)
-            return selectResult > 0
+            var descriptor = pollfd(
+                fd: sock,
+                events: Int16(POLLOUT),
+                revents: 0
+            )
+            guard poll(&descriptor, 1, 200) > 0 else { return false }
+
+            var socketError: Int32 = 0
+            var errorLength = socklen_t(MemoryLayout<Int32>.size)
+            guard getsockopt(
+                sock,
+                SOL_SOCKET,
+                SO_ERROR,
+                &socketError,
+                &errorLength
+            ) == 0 else { return false }
+            return socketError == 0
         }
 
         return false

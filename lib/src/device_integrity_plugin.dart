@@ -3,7 +3,7 @@ import 'models/capability.dart';
 import 'models/integrity_report.dart';
 import 'platform/device_integrity_platform.dart';
 
-/// Main entry point for the device_integrity plugin.
+/// Main entry point for the device_integrity_plugin package.
 ///
 /// Provides three operations:
 /// 1. [checkLocalSignals] — offline, on-device checks.
@@ -62,6 +62,10 @@ class DeviceIntegrityPlugin {
   /// On iOS the host app is responsible for including it in the assertion
   /// client data.
   ///
+  /// [keyId] is required for iOS App Attest assertions. Generate and attest
+  /// the key first with [generateAppAttestKey] and [attestAppAttestKey]. It is
+  /// ignored by Android.
+  ///
   /// The returned [AttestationProof] is opaque — the plugin does not
   /// validate it. The host app must submit it to its backend for
   /// server-side verification. Never place Google or Apple server
@@ -69,10 +73,12 @@ class DeviceIntegrityPlugin {
   Future<AttestationProof> createProof({
     required String challenge,
     String? requestHash,
+    String? keyId,
   }) async {
     final raw = await _platform.createProof(
       challenge: challenge,
       requestHash: requestHash,
+      keyId: keyId,
     );
     return AttestationProof.fromMap(raw);
   }

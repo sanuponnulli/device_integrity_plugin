@@ -1,7 +1,7 @@
 import Flutter
 import UIKit
 
-/// Flutter platform plugin for device_integrity (iOS).
+/// Flutter platform plugin for device_integrity_plugin (iOS).
 ///
 /// Orchestrates independent check modules and the App Attest provider.
 /// Each check reports its own status — errors in one check never
@@ -16,7 +16,7 @@ public class DeviceIntegrityPlugin: NSObject, FlutterPlugin {
 
     public static func register(with registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(
-            name: "com.example.device_integrity/methods",
+            name: "com.sanuponnulli.device_integrity_plugin/methods",
             binaryMessenger: registrar.messenger()
         )
         let instance = DeviceIntegrityPlugin()

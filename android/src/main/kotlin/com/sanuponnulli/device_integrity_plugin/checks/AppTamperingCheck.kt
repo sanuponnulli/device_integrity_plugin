@@ -1,10 +1,10 @@
-package com.example.device_integrity.checks
+package com.sanuponnulli.device_integrity_plugin.checks
 
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
-import com.example.device_integrity.models.Finding
-import com.example.device_integrity.models.IntegrityCheck
+import com.sanuponnulli.device_integrity_plugin.models.Finding
+import com.sanuponnulli.device_integrity_plugin.models.IntegrityCheck
 
 /**
  * Checks app configuration and tampering indicators.

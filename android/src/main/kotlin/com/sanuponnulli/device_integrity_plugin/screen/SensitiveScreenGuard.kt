@@ -1,4 +1,4 @@
-package com.example.device_integrity.screen
+package com.sanuponnulli.device_integrity_plugin.screen
 
 import android.app.Activity
 import android.view.WindowManager

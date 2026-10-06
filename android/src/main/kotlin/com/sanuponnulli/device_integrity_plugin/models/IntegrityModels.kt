@@ -1,4 +1,4 @@
-package com.example.device_integrity.models
+package com.sanuponnulli.device_integrity_plugin.models
 
 /**
  * A single integrity observation produced by one check.

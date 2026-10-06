@@ -33,14 +33,11 @@ class IntegrityCapability {
   Map<String, dynamic> toMap() => {
         'id': id,
         'available': available,
-        if (unavailableReason != null)
-          'unavailableReason': unavailableReason,
-        if (minimumOsVersion != null)
-          'minimumOsVersion': minimumOsVersion,
+        if (unavailableReason != null) 'unavailableReason': unavailableReason,
+        if (minimumOsVersion != null) 'minimumOsVersion': minimumOsVersion,
       };
 
   @override
-  String toString() =>
-      'IntegrityCapability(id: $id, available: $available'
+  String toString() => 'IntegrityCapability(id: $id, available: $available'
       '${unavailableReason != null ? ', reason: $unavailableReason' : ''})';
 }
