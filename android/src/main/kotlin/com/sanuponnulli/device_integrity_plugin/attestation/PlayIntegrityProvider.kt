@@ -5,6 +5,7 @@ import android.util.Base64
 import com.google.android.play.core.integrity.IntegrityManagerFactory
 import com.google.android.play.core.integrity.StandardIntegrityManager
 import kotlinx.coroutines.suspendCancellableCoroutine
+import com.sanuponnulli.device_integrity_plugin.util.IsoTimestamp
 import java.security.MessageDigest
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -96,7 +97,7 @@ class PlayIntegrityProvider(private val context: Context) {
                                         "tokenBase64" to response.token(),
                                         "challenge" to challenge,
                                         "requestHash" to requestHash,
-                                        "createdAtIso" to java.time.Instant.now().toString(),
+                                        "createdAtIso" to IsoTimestamp.now(),
                                     )
                                 )
                             }

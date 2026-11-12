@@ -10,7 +10,7 @@ public class DeviceIntegrityPlugin: NSObject, FlutterPlugin {
 
     private let screenGuard = SensitiveScreenGuardiOS()
 
-    static let packageVersion = "0.1.0"
+    static let packageVersion = "0.2.0"
 
     // MARK: - Plugin registration
 

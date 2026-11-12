@@ -8,6 +8,7 @@ import com.sanuponnulli.device_integrity_plugin.checks.*
 import com.sanuponnulli.device_integrity_plugin.models.Finding
 import com.sanuponnulli.device_integrity_plugin.models.IntegrityCheck
 import com.sanuponnulli.device_integrity_plugin.screen.SensitiveScreenGuard
+import com.sanuponnulli.device_integrity_plugin.util.IsoTimestamp
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
@@ -36,7 +37,7 @@ class DeviceIntegrityPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
     companion object {
         const val CHANNEL_NAME = "com.sanuponnulli.device_integrity_plugin/methods"
-        const val PACKAGE_VERSION = "0.1.0"
+        const val PACKAGE_VERSION = "0.2.0"
     }
 
     // ── FlutterPlugin lifecycle ─────────────────────────────────────────
@@ -280,7 +281,7 @@ class DeviceIntegrityPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             "platform" to "android",
             "osVersion" to Build.VERSION.SDK_INT.toString(),
             "packageVersion" to PACKAGE_VERSION,
-            "checkTimeIso" to java.time.Instant.now().toString(),
+            "checkTimeIso" to IsoTimestamp.now(),
             "findings" to findings.map { it.toMap() },
         )
     }

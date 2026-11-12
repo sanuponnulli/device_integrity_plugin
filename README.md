@@ -152,8 +152,8 @@ if (captured) {
 
 | Feature | Android | iOS |
 |---|---|---|
-| Local checks | API 21+ | iOS 12+ |
-| VPN detection | API 23+ | iOS 12+ |
+| Local checks | API 24+ | iOS 13+ |
+| VPN detection | API 24+ | iOS 13+ |
 | Play Integrity | Requires Play Services | — |
 | App Attest | — | iOS 14+ (physical device) |
 | Secure screen | `FLAG_SECURE` | Report only (`isCaptured`) |
@@ -218,11 +218,13 @@ device_integrity_plugin/
 │   ├── checks/                        # Independent check modules
 │   ├── attestation/                   # Play Integrity provider
 │   └── screen/                        # FLAG_SECURE guard
-├── ios/Classes/
-│   ├── DeviceIntegrityPlugin.swift    # iOS plugin entry
-│   ├── Checks/                        # Independent check modules
-│   ├── Attestation/                   # App Attest provider
-│   └── Screen/                        # Capture detection
+├── ios/device_integrity_plugin/       # Swift package (also used by the podspec)
+│   ├── Package.swift
+│   └── Sources/device_integrity_plugin/
+│       ├── DeviceIntegrityPlugin.swift    # iOS plugin entry
+│       ├── Checks/                    # Independent check modules
+│       ├── Attestation/               # App Attest provider
+│       └── Screen/                    # Capture detection
 ├── example/                           # Demo app
 └── test/                              # Dart unit tests
 ```

@@ -11,15 +11,21 @@ permissions:
 
 jobs:
   dart:
-    name: Dart checks (Flutter ${{ matrix.flutter_version }})
+    name: Dart checks (Flutter ${{ matrix.label }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        flutter_version: ["3.10.0", "stable"]
+        include:
+          # Lowest version allowed by pubspec.yaml (`flutter: ">=3.44.0"`).
+          - label: "3.44.0 minimum"
+            flutter_version: "3.44.0"
+          # An empty version means the latest release on the stable channel.
+          - label: "latest stable"
+            flutter_version: ""
     steps:
       - name: Checkout source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
@@ -38,14 +44,20 @@ jobs:
         run: flutter test
 
   build_android:
-    name: Android example and 16 KB check
+    name: Android example (${{ matrix.kotlin }} Kotlin)
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # builtin: AGP Built-in Kotlin + new DSL (the example's checked-in setup).
+        # legacy: Kotlin Gradle Plugin + old DSL, which most apps still use.
+        kotlin: [builtin, legacy]
     steps:
       - name: Checkout source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: "17"
@@ -53,15 +65,21 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: stable
           channel: stable
           cache: true
+
+      - name: Switch example to legacy Kotlin Gradle Plugin mode
+        if: matrix.kotlin == 'legacy'
+        run: |
+          sed -i 's/^android.builtInKotlin=.*/android.builtInKotlin=false/; s/^android.newDsl=.*/android.newDsl=false/' example/android/gradle.properties
+          grep -E 'builtInKotlin|newDsl' example/android/gradle.properties
 
       - name: Install example dependencies
         working-directory: example
         run: flutter pub get
 
       - name: Run example widget tests
+        if: matrix.kotlin == 'builtin'
         working-directory: example
         run: flutter test
 
@@ -69,7 +87,26 @@ jobs:
         working-directory: example
         run: flutter build apk --debug
 
+      - name: Build example release APK
+        if: matrix.kotlin == 'builtin'
+        working-directory: example
+        run: flutter build apk --release
+
+      - name: Run Android lint on the plugin
+        if: matrix.kotlin == 'builtin'
+        working-directory: example/android
+        run: ./gradlew :device_integrity_plugin:lintDebug --console=plain
+
+      - name: Upload Android lint report
+        if: failure() && matrix.kotlin == 'builtin'
+        uses: actions/upload-artifact@v7
+        with:
+          name: android-lint-report
+          path: example/build/device_integrity_plugin/reports/lint-results-debug.*
+          if-no-files-found: ignore
+
       - name: Check native libraries for 16 KB page-size support
+        if: matrix.kotlin == 'builtin'
         shell: bash
         run: |
           set -euo pipefail
@@ -109,18 +146,26 @@ jobs:
           "$zipalign" -c -P 16 4 "$apk"
 
   build_ios:
-    name: iOS example build
+    name: iOS example (${{ matrix.dependency_manager }})
     runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # The plugin ships both a Package.swift and a podspec.
+        dependency_manager: [spm, cocoapods]
     steps:
       - name: Checkout source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: stable
           channel: stable
           cache: true
+
+      - name: Use CocoaPods instead of Swift Package Manager
+        if: matrix.dependency_manager == 'cocoapods'
+        run: flutter config --no-enable-swift-package-manager
 
       - name: Install example dependencies
         working-directory: example
@@ -130,17 +175,23 @@ jobs:
         working-directory: example
         run: flutter build ios --no-codesign
 
+      - name: Validate podspec
+        if: matrix.dependency_manager == 'cocoapods'
+        run: >
+          pod lib lint ios/device_integrity_plugin.podspec
+          --configuration=Debug --skip-tests --use-modular-headers
+          --allow-warnings --quick
+
   package_validation:
     name: Package and documentation validation
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: stable
           channel: stable
           cache: true
 

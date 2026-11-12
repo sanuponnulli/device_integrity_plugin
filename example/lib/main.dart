@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:device_integrity_plugin/device_integrity_plugin.dart';
 
 void main() {
